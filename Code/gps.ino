@@ -1,71 +1,11 @@
-<لإهىغلأ؛ٍ؛معسزا>#هىؤمعيث
-<ٍخبفصقثٍثقهمزا>#هىؤمعيث
-
-سففهؤ ؤخىسف هىف لٌْ؛هى = 16و لإْ؛هى = 17ك
-سففهؤ ؤخىسف عهىف32_ف لأ؛ٍلآعي = 9600ك
-
-لإهىغلأحس؛معس لخسك
-
-ٍخبصفقثٍثقهم سس (ٌْ؛هىو لإْ؛هى)ك
-
-رخهي سثفعح()
-{
-  ٍثقهمزلاثلهى(9600)ك
-  سسزلاثلهى(لأ؛ٍلآعي)ك
-}
-
-رخهي مخخح()
-{
-  حقهىفبمخف(لحسزمخؤفهخىزمف()ضلحسزمخلؤفهخىزهسرمهي()و11و6)ك
-  حقهىفبمخف(لحسزمخؤفهخىزمىل()و لحسزمخؤفهخىزهسرمهي()و 12و6)ك
-  سةقفيثمغ(1000)ك
-
-}
-سففهؤ لاخهي سةقفيثمغ(عىسهلىثي مخىل ةس)
-{
-  عىسهلىثي مخىل سفقف = ةهممهس()ك
-  يخ 
-  {
-    صاهمث (سسزرهملامث()){
-      لحسزثىؤخيث(سسزقثي())ك
-    }
-  } صاهمث (ةهممهس() - سفقف <ةس)ك
-}
-
-سففهؤ لاخهي حقهىفبمخف (بمخف رمو لاممخ رمهيو هىف مثىو هىف حقثؤ)
-{
-  هب(!رمهي)
-  {
-    صاهمث(مثى-- > 1) 
-      سثقهمزحقهىف(ط*ط)ك
-    سثقهمزحقهىف(ط ط)ك
-  }
-  ثمسث
-  {
-    سثقهمزحقهىف(رمو حقثؤ)ك
-    هىف ره = لاس((هىف)رم)ك
-    هىف بمثى=حقثؤ + (رم<0ز0؟2:1)ك
-    بمثى +=ره >=1000 ? 4: ره >= 100 ? 3 : لره >= 10 ? 2:1 ك
-    بخق (هىف ه = بمثىك ه<مثىك ++ه)
-      سثقهمزحقهىف(ط ط)ك
-  }
-  سةقفيثمغ(0)ك
-}
-
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
-/*
-   This sample code demonstrates the normal use of a TinyGPSPlus (TinyGPSPlus) object.
-   It requires the use of SoftwareSerial, and assumes that you have a
-   4800-baud serial GPS device hooked up on pins 4(rx) and 3(tx).
-*/
+
 static const int RXPin = 16, TXPin = 17;
 static const uint32_t GPSBaud = 9600;
 
-// The TinyGPSPlus object
 TinyGPSPlus gps;
 
-// The serial connection to the GPS device
 SoftwareSerial ss(RXPin, TXPin);
 
 void setup()
@@ -130,8 +70,6 @@ void loop()
     Serial.println(F("No GPS data received: check wiring"));
 }
 
-// This custom version of delay() ensures that the gps object
-// is being "fed".
 static void smartDelay(unsigned long ms)
 {
   unsigned long start = millis();
