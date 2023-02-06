@@ -1,11 +1,16 @@
 #include <Wire.h>
-
 #include <Adafruit_PWMServoDriver.h>
 
 Adafruit_PWMServoDriver ServoController = Adafruit_PWMServoDriver(0x40);
 
 #define SERVOMINPULSE  110
 #define SERVOMAXPULSE  590
+#define elevatorL      0
+#define elevatorR      1
+#define aileronL       2
+#define aileronR       3
+#define bay            4
+#define releaseMchnsm  5
 
 void setup() {
   Serial.begin(115200);
@@ -14,11 +19,9 @@ void setup() {
 }
 
 void loop() {
-  ServoController.setPWM(0, 0, angleToPulse(180));
-  ServoController.setPWM(1, 0, angleToPulse(180));
+  ServoController.setPWM(elevatorL, 0, angleToPulse(180));
   delay(2500);
-  ServoController.setPWM(0, 0, angleToPulse(0));
-  ServoController.setPWM(1, 0, angleToPulse(0));
+  ServoController.setPWM(elevatorL, 0, angleToPulse(0));
   delay(1000);
 }
 
