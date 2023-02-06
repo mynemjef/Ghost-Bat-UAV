@@ -13,5 +13,4 @@ void loop() {
   digitalWrite(relay1, HIGH);
   digitalWrite(relay2, HIGH);
   delay(1000);
-
 }
