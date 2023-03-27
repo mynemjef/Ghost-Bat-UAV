@@ -1,9 +1,9 @@
 #include <SoftwareSerial.h>
  
-#define SDA_PIN     21
-#define SCL_PIN     22
+#define TRIGGER_PIN  5
+#define ECHO_PIN     18
  
-SoftwareSerial US100Serial(SCL_PIN, SDA_PIN);
+SoftwareSerial US100Serial(TRIGGER_PIN, ECHO_PIN);
  
 unsigned int MSByteDist, LSByteDist, mmDist;
  
