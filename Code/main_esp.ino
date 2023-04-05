@@ -1,31 +1,32 @@
 
-#define SERVOMINPULSE  110
-#define SERVOMAXPULSE  590
+#define SERVOMINPULSE   110
+#define SERVOMAXPULSE   590
 #define TRIGGER_PIN     5
-#define ECHO_PIN     18
-#define MPU_addr  0x68
-#define relay1   2
-#define relay2   4
+#define ECHO_PIN        18
+#define MPU_addr        0x68
+#define relay1          2
+#define relay2          4
+#define RXPin           16
+#define TXPin           17
 
-static const int RXPin = 16, TXPin = 17;
+#include <Adafruit_PWMServoDriver.h>
+#include <Adafruit_HMC5883_U.h>
+#include <Adafruit_MLX90614.h>
+#include <Adafruit_Sensor.h>
+#include <SoftwareSerial.h>
+#include <TinyGPSPlus.h>
+#include <Wire.h>
+
+Adafruit_PWMServoDriver ServoController = Adafruit_PWMServoDriver(0x40);
+Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
+SoftwareSerial US100Serial(TRIGGER_PIN, ECHO_PIN);
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+SoftwareSerial ss(RXPin, TXPin);
+TinyGPSPlus gps;
+
 static const uint32_t GPSBaud = 9600;
 double roll, pitch;
 int16_t X,Y,Z;
-
-#include <Adafruit_MLX90614.h>
-#include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
-#include <TinyGPSPlus.h>
-#include <SoftwareSerial.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_HMC5883_U.h>
-
-Adafruit_MLX90614 mlx = Adafruit_MLX90614();
-Adafruit_PWMServoDriver ServoController = Adafruit_PWMServoDriver(0x40);
-TinyGPSPlus gps;
-SoftwareSerial ss(RXPin, TXPin);
-SoftwareSerial US100Serial(TRIGGER_PIN, ECHO_PIN);
-Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
 void setup() {
   pinMode(relay1, OUTPUT);
@@ -180,27 +181,6 @@ void loop() {
   printFloat(gps.speed.kmph(), gps.speed.isValid(), 6, 2);
   printStr(gps.course.isValid() ? TinyGPSPlus::cardinal(gps.course.deg()) : "*** ", 6);
 
-  unsigned long distanceKmToLondon =
-    (unsigned long)TinyGPSPlus::distanceBetween(
-      gps.location.lat(),
-      gps.location.lng(),
-      LONDON_LAT, 
-      LONDON_LON) / 1000;
-  printInt(distanceKmToLondon, gps.location.isValid(), 9);
-
-  double courseToLondon =
-    TinyGPSPlus::courseTo(
-      gps.location.lat(),
-      gps.location.lng(),
-      LONDON_LAT, 
-      LONDON_LON);
-
-  printFloat(courseToLondon, gps.location.isValid(), 7, 2);
-
-  const char *cardinalToLondon = TinyGPSPlus::cardinal(courseToLondon);
-
-  printStr(gps.location.isValid() ? cardinalToLondon : "*** ", 6);
-
   printInt(gps.charsProcessed(), true, 6);
   printInt(gps.sentencesWithFix(), true, 10);
   printInt(gps.failedChecksum(), true, 9);
@@ -210,7 +190,6 @@ void loop() {
 
   if (millis() > 5000 && gps.charsProcessed() < 10)
     Serial.println(F("No GPS data received: check wiring"));
-
 
 
   sensors_event_t event;
