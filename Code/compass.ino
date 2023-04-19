@@ -6,6 +6,9 @@ Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
 void setup(void){
   Serial.begin(115200);
+  if(!mag.begin()){
+    while(1);
+  }
 }
 
 void loop(void){
