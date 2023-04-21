@@ -53,4 +53,4 @@
 ## Информация за автора на проекта
 
 * Станислав Иванов - създател
-* stanislav.m.ivanov.2019@elsys-bg.org
+<br /> stanislav.m.ivanov.2019@elsys-bg.org
