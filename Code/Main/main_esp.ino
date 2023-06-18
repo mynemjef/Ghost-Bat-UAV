@@ -51,7 +51,7 @@ struct Waypoint {
 };
 
 
-// Predefined waypoints
+// Predefined waypoints, this is how mission is defined
 Waypoint waypoints[] = {
 //  {alt, lat, longit, 0},   // Waypoint 1
 //  {alt, lat, longit, 0},   // Waypoint 2
@@ -78,7 +78,6 @@ Waypoint waypoints[] = {
 #include <InfluxDbClient.h>
 #include <InfluxDbCloud.h>
 
-
 InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
 Adafruit_PWMServoDriver ServoController = Adafruit_PWMServoDriver(0x40);
 Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
@@ -89,13 +88,9 @@ Point sensor("wifi_status");
 TinyGPSPlus gps;
 
 
-
-
 static const uint32_t GPSBaud = 9600;
 double roll, pitch;
 int16_t X,Y,Z;
-
-
 
 
 void setup() {
@@ -112,12 +107,9 @@ void setup() {
   sensor.addTag("SSID", WiFi.SSID());
   //sensor.addTag(“TAG_NAME”, TAG_VARIABLE);
  
-  // Accurate time is necessary for certificate validation and                   writing in batches
-  // We use the NTP servers in your area as provided by:   https://www.pool.ntp.org/zone/
-  // Syncing progress and the time will be printed to Serial.
+  // Accurate time is necessary for certificate validation and writing in batches
   timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
  
-  // Check server connection
   if (client.validateConnection()) {
     Serial.print("Connected to InfluxDB: ");
     Serial.println(client.getServerUrl());
@@ -149,14 +141,14 @@ void setup() {
 
 
 void surfaceTest() {
-  // Move servos 30 degrees up
+  // Move servos 30 degrees up for startup checks
   setServoAngle(LEFT_WING_SERVO_PIN, 60);
   setServoAngle(RIGHT_WING_SERVO_PIN, 60);
   setServoAngle(LEFT_STABILIZER_SERVO_PIN, 60);
   setServoAngle(RIGHT_STABILIZER_SERVO_PIN, 60);
 
 
-  delay(2000); // Wait for 2 seconds
+  delay(2000);
 
 
   setServoAngle(LEFT_WING_SERVO_PIN, 120);
@@ -184,8 +176,6 @@ int readWiFiRSSI() {
 }
 
 
-
-
 int readDistance() {
   US100Serial.flush();
   US100Serial.write(0x55);
@@ -197,13 +187,9 @@ int readDistance() {
 }
 
 
-
-
 float readAmbientTemperature() {
   return mlx.readAmbientTempC();
 }
-
-
 
 
 float readObjectTemperature() {
@@ -211,14 +197,10 @@ float readObjectTemperature() {
 }
 
 
-
-
 void moveServoToAngle(int angle) {
   int pulse = map(angle, 0, 180, SERVOMINPULSE, SERVOMAXPULSE);
   ServoController.setPWM(0, 0, pulse);
 }
-
-
 
 
 void readAccelerometerData(int16_t& x, int16_t& y, int16_t& z) {
@@ -232,13 +214,9 @@ void readAccelerometerData(int16_t& x, int16_t& y, int16_t& z) {
 }
 
 
-
-
 float calculatePitch() {
   return atan2(readAccelerometerData(X, Y, Z).y, readAccelerometerData(X, Y, Z).z) * (180.0 / PI);
 }
-
-
 
 
 float calculateRoll() {
@@ -246,13 +224,9 @@ float calculateRoll() {
 }
 
 
-
-
 int readSatelliteCount() {
   return gps.satellites.value();
 }
-
-
 
 
 float readHDOP() {
@@ -260,13 +234,9 @@ float readHDOP() {
 }
 
 
-
-
 float readLatitude() {
   return gps.location.lat();
 }
-
-
 
 
 float readLongitude() {
@@ -274,13 +244,9 @@ float readLongitude() {
 }
 
 
-
-
 unsigned long readLocationAge() {
   return gps.location.age();
 }
-
-
 
 
 void printDateTime(TinyGPSDate& d, TinyGPSTime& t) {
@@ -312,13 +278,9 @@ void printDateTime(TinyGPSDate& d, TinyGPSTime& t) {
 }
 
 
-
-
 float readAltitude() {
   return gps.altitude.meters();
 }
-
-
 
 
 float readCourse() {
@@ -326,13 +288,9 @@ float readCourse() {
 }
 
 
-
-
 float readSpeed() {
   return gps.speed.kmph();
 }
-
-
 
 
 const char* readCardinalDirection() {
@@ -340,13 +298,9 @@ const char* readCardinalDirection() {
 }
 
 
-
-
 int readCharsProcessed() {
   return gps.charsProcessed();
 }
-
-
 
 
 int readSentencesWithFix() {
@@ -354,13 +308,9 @@ int readSentencesWithFix() {
 }
 
 
-
-
 int readFailedChecksum() {
   return gps.failedChecksum();
 }
-
-
 
 
 float readHeadingDegrees() {
@@ -401,11 +351,8 @@ float calculateHeading(float currentLat, float currentLon, float waypointLat, fl
 
 
 void setThrottlePercentage(int throttlePercent) {
-  // Convert the throttle percentage to a value between 0 and 255
   int throttleValue = map(throttlePercent, 0, 100, 0, 255);
 
-
-  // Set the ESCs to the calculated throttle value
   analogWrite(ESC_PIN_1, throttleValue);
   analogWrite(ESC_PIN_2, throttleValue);
   analogWrite(ESC_PIN_3, throttleValue);
@@ -448,20 +395,18 @@ void loop(){
   float currentLon = readLongitude();
  
   // Calculate the heading to the next waypoint
-  int currentWaypoint = 0; // Change this to the appropriate waypoint index
+  int currentWaypoint = 0;
   float waypointLat = waypoints[currentWaypoint].latitude;
   float waypointLon = waypoints[currentWaypoint].longitude;
   float heading = calculateHeading(currentLat, currentLon, waypointLat, waypointLon);
 
 
-  // Adjust control surfaces based on roll and pitch angles
   int leftWingAngle = map(static_cast<int>(rollAngle), -90, 90, WING_ANGLE_MIN, WING_ANGLE_MAX);
   int rightWingAngle = map(static_cast<int>(rollAngle), -90, 90, WING_ANGLE_MAX, WING_ANGLE_MIN);
   int leftStabilizerAngle = map(static_cast<int>(pitchAngle), -90, 90, WING_ANGLE_MIN, WING_ANGLE_MAX);
   int rightStabilizerAngle = map(static_cast<int>(pitchAngle), -90, 90, WING_ANGLE_MAX, WING_ANGLE_MIN);
 
 
-  // Move control surfaces to the adjusted angles
   setServoAngle(LEFT_WING_SERVO_PIN, leftWingAngle);
   setServoAngle(RIGHT_WING_SERVO_PIN, rightWingAngle);
   setServoAngle(LEFT_STABILIZER_SERVO_PIN, leftStabilizerAngle);
@@ -478,18 +423,13 @@ void loop(){
   }
 
 
-  // Set the throttle to the calculated adjustment
   setThrottlePercentage(throttlePercent);
 
 
-  // Check if the plane has reached the current waypoint
-  // You can use the distance between the current location and the waypoint to determine this
   float distanceToWaypoint = calculateDistance(currentLat, currentLon, waypointLat, waypointLon);
   if (distanceToWaypoint < DISTANCE_THRESHOLD) {
-    // Plane has reached the waypoint, move to the next one
     currentWaypoint++;
     if (currentWaypoint >= sizeof(waypoints) / sizeof(waypoints[0])) {
-      // All waypoints reached, you can implement a landing or return behavior here
       return;
     }
 
